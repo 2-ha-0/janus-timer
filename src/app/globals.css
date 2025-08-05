@@ -10,6 +10,30 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* 흔들림 애니메이션 추가 */
+  --animation-shake: shake 0.5s ease-in-out infinite;
+}
+
+/* 흔들림 키프레임 정의 */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-5px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(5px);
+  }
 }
 
 @media (prefers-color-scheme: dark) {

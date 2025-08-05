@@ -10,7 +10,28 @@ export default function Home() {
   const [isRunning, setIsRunning] = useState(false);
   const [totalTime, setTotalTime] = useState(0);
   const [isIntervalRunning, setIsIntervalRunning] = useState(false);
+  const [isShaking, setIsShaking] = useState(false); // 흔들림 상태 추가
   const circleRef = useRef<SVGCircleElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  // 알림음 재생 함수
+  const playNotificationSound = () => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0; // 처음부터 재생
+      audioRef.current.play().catch((error) => {
+        console.log("오디오 재생 실패:", error);
+      });
+    }
+  };
+
+  // 흔들림 효과 함수 추가
+  const triggerShake = () => {
+    setIsShaking(true);
+    // 2초 후 흔들림 중지
+    setTimeout(() => {
+      setIsShaking(false);
+    }, 2000);
+  };
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -25,6 +46,11 @@ export default function Home() {
       } else {
         setIsRunning(false);
       }
+
+      // 알림음 재생
+      playNotificationSound();
+      // 흔들림 효과 시작
+      triggerShake();
 
       if (Notification.permission === "granted") {
         new Notification("⏰ 타이머 완료!", {
@@ -44,7 +70,7 @@ export default function Home() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isRunning, time]);
+  }, [isRunning, time, isIntervalRunning, totalTime]);
 
   useEffect(() => {
     setTime(inputMinutes * 60 + inputSeconds);
@@ -88,7 +114,19 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-slate-900">
-      <div className="bg-gray-800/90 shadow-2xl rounded-3xl p-8 flex flex-col items-center gap-8 w-full max-w-xs sm:max-w-md border border-gray-700">
+      {/* 숨겨진 오디오 요소 */}
+      <audio ref={audioRef} preload="auto">
+        <source src="/assets/sounds/timer-end.mp3" type="audio/mpeg" />
+        <source src="/assets/sounds/timer-end.ogg" type="audio/ogg" />
+        <source src="/assets/sounds/timer-end.wav" type="audio/wav" />
+      </audio>
+
+      {/* 흔들림 효과가 적용된 메인 컨테이너 */}
+      <div
+        className={`bg-gray-800/90 shadow-2xl rounded-3xl p-8 flex flex-col items-center gap-8 w-full max-w-xs sm:max-w-md border border-gray-700 transition-all duration-300 ${
+          isShaking ? "animate-[shake_0.5s_ease-in-out_infinite]" : ""
+        }`}
+      >
         {/* 원형 타이머 */}
         <div
           className="relative flex items-center justify-center"
