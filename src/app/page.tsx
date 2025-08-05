@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
 
 export default function Home() {
@@ -11,8 +11,33 @@ export default function Home() {
   const [totalTime, setTotalTime] = useState(0);
   const [isIntervalRunning, setIsIntervalRunning] = useState(false);
   const [isShaking, setIsShaking] = useState(false); // 흔들림 상태 추가
+  const [isClient, setIsClient] = useState(false); // 클라이언트 체크
   const circleRef = useRef<SVGCircleElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  // 클라이언트에서만 실행
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // 별 스타일을 클라이언트에서만 생성
+  const starStyles = useMemo(() => {
+    if (!isClient) return [];
+
+    return Array.from({ length: 30 }).map(() => {
+      const top = Math.random() * 100;
+      const left = Math.random() * 100;
+      const size = Math.random() * 2 + 1; // 1~3px
+      const delay = Math.random() * 5; // 0~5초
+      return {
+        top: `${top}%`,
+        left: `${left}%`,
+        width: `${size}px`,
+        height: `${size}px`,
+        animationDelay: `${delay}s`,
+      };
+    });
+  }, [isClient]); // 빈 배열로 한 번만 실행
 
   // 알림음 재생 함수
   const playNotificationSound = () => {
@@ -113,7 +138,31 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-slate-900">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
+      style={{
+        background: `
+          radial-gradient(ellipse at 20% 40%, #312e81 0%, transparent 60%),
+          radial-gradient(ellipse at 80% 60%,rgb(16, 81, 99) 0%, transparent 60%),
+          radial-gradient(ellipse at 50% 80%, #581c87 0%, transparent 70%),
+          linear-gradient(120deg, #0f172a 0%, #1e293b 50%, #312e81 100%)
+        `,
+        backgroundBlendMode: "screen",
+      }}
+    >
+      {/* 우주 배경 별들 - 클라이언트에서만 렌더링 */}
+      {isClient && (
+        <div className="fixed inset-0 pointer-events-none z-0">
+          {starStyles.map((style, i) => (
+            <div key={i} className="star" style={style}></div>
+          ))}
+
+          <div className="shooting-star"></div>
+          <div className="shooting-star"></div>
+          <div className="shooting-star"></div>
+        </div>
+      )}
+
       {/* 숨겨진 오디오 요소 */}
       <audio ref={audioRef} preload="auto">
         <source src="/assets/sounds/timer-end.mp3" type="audio/mpeg" />
@@ -121,9 +170,8 @@ export default function Home() {
         <source src="/assets/sounds/timer-end.wav" type="audio/wav" />
       </audio>
 
-      {/* 흔들림 효과가 적용된 메인 컨테이너 */}
       <div
-        className={`bg-gray-800/90 shadow-2xl rounded-3xl p-8 flex flex-col items-center gap-8 w-full max-w-xs sm:max-w-md border border-gray-700 transition-all duration-300 ${
+        className={`bg-black/60 shadow-2xl rounded-3xl p-8 flex flex-col items-center gap-8 w-full max-w-xs sm:max-w-md border border-gray-700 transition-all duration-300 ${
           isShaking ? "animate-[shake_0.5s_ease-in-out_infinite]" : ""
         }`}
       >
@@ -169,10 +217,10 @@ export default function Home() {
             {format(time)}
           </span>
         </div>
-        {/* 상태 */}
+        {/* 상태 
         <div className="text-center text-gray-300 text-sm mb-2 h-5">
           {isRunning ? "진행 중..." : time === 0 ? "대기 중" : "일시정지"}
-        </div>
+        </div>*/}
         {/* 입력 */}
         <div className="flex gap-2 justify-center items-center">
           <input
