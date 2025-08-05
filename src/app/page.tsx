@@ -8,24 +8,29 @@ export default function Home() {
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
   const [totalTime, setTotalTime] = useState(0);
+  const [isIntervalRunning, setIsIntervalRunning] = useState(false);
   const circleRef = useRef<SVGCircleElement>(null);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
-    
+
     if (isRunning && time > 0) {
       interval = setInterval(() => {
         setTime((prev) => prev - 1);
       }, 1000);
     } else if (time === 0 && isRunning) {
-      setIsRunning(false);
+      if (isIntervalRunning) {
+        setTime(totalTime);
+      } else {
+        setIsRunning(false);
+      }
 
       if (Notification.permission === "granted") {
         new Notification("⏰ 타이머 완료!", {
           body: "설정한 시간이 끝났어요.",
         });
-
       } else if (Notification.permission !== "denied") {
+        // 웹사이트 알림 권한 요청
         Notification.requestPermission().then((permission) => {
           if (permission === "granted") {
             new Notification("⏰ 타이머 완료!", {
@@ -60,13 +65,24 @@ export default function Home() {
   const applyTimer = () => {
     setTime(inputMinutes * 60 + inputSeconds);
     setTotalTime(inputMinutes * 60 + inputSeconds);
+  };
+
+  const toggleTimer = () => {
+    if (isRunning) {
+      setIsRunning(false);
+    } else {
+      applyTimer();
+      setIsRunning(true);
+    }
+  };
+  const resetTimer = () => {
+    setInputSeconds(0);
+    setInputMinutes(0);
     setIsRunning(false);
   };
 
-  const toggleTimer = () => setIsRunning((prev) => !prev);
-  const resetTimer = () => {
-    setTime(totalTime);
-    setIsRunning(false);
+  const toggleInterval = () => {
+    setIsIntervalRunning((prev) => !prev);
   };
 
   return (
@@ -132,6 +148,7 @@ export default function Home() {
             className="w-14 text-center rounded-lg border border-gray-600 bg-gray-700 text-white p-2 font-mono text-lg shadow focus:ring-2 focus:ring-cyan-500 transition"
             disabled={isRunning}
           />
+          {/*
           <button
             onClick={applyTimer}
             className="ml-2 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-cyan-600 text-white font-semibold shadow hover:scale-105 active:scale-95 transition"
@@ -139,7 +156,26 @@ export default function Home() {
           >
             설정
           </button>
+          */}
         </div>
+        <div className="flex items-center gap-3">
+          <span className="text-gray-300 text-sm">인터벌 모드</span>
+          <button
+            onClick={toggleInterval}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 ${
+              isIntervalRunning
+                ? "bg-gradient-to-r from-purple-600 to-cyan-600"
+                : "bg-gray-600"
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                isIntervalRunning ? "translate-x-6" : "translate-x-1"
+              }`}
+            />
+          </button>
+        </div>
+
         {/* 컨트롤 */}
         <div className="flex gap-4 justify-center mt-2">
           <button
@@ -156,7 +192,7 @@ export default function Home() {
           <button
             onClick={resetTimer}
             className="px-6 py-2 rounded-xl bg-gray-600 text-gray-200 font-bold shadow hover:bg-gray-500 transition text-lg"
-            disabled={time === totalTime || totalTime === 0}
+            disabled={totalTime === 0}
           >
             리셋
           </button>
