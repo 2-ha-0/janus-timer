@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 
 export default function Home() {
   const [inputMinutes, setInputMinutes] = useState(0);
@@ -51,7 +52,7 @@ export default function Home() {
   }, [inputMinutes, inputSeconds]);
 
   // 원형 진행률 계산
-  const radius = 90;
+  const radius = 130;
   const circumference = 2 * Math.PI * radius;
   const percent = totalTime ? time / totalTime : 0;
   const dashoffset = circumference * (1 - percent);
@@ -89,11 +90,18 @@ export default function Home() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-slate-900">
       <div className="bg-gray-800/90 shadow-2xl rounded-3xl p-8 flex flex-col items-center gap-8 w-full max-w-xs sm:max-w-md border border-gray-700">
         {/* 원형 타이머 */}
-        <div className="relative flex items-center justify-center">
-          <svg width={220} height={220}>
+        <div
+          className="relative flex items-center justify-center"
+          style={{
+            backgroundImage: 'url("/assets/images/maple.png")',
+            backgroundPosition: "center 90px",
+            backgroundRepeat: "no-repeat",
+          }}
+        >
+          <svg width={320} height={320}>
             <circle
-              cx={110}
-              cy={110}
+              cx={160}
+              cy={160}
               r={radius}
               fill="none"
               stroke="#374151"
@@ -101,8 +109,8 @@ export default function Home() {
             />
             <circle
               ref={circleRef}
-              cx={110}
-              cy={110}
+              cx={160}
+              cy={160}
               r={radius}
               fill="none"
               stroke="url(#timer-gradient)"
@@ -119,7 +127,7 @@ export default function Home() {
               </linearGradient>
             </defs>
           </svg>
-          <span className="absolute text-5xl font-extrabold text-white select-none drop-shadow-lg">
+          <span className="absolute -top-[-80px] text-5xl font-extrabold text-white select-none drop-shadow-lg">
             {format(time)}
           </span>
         </div>
