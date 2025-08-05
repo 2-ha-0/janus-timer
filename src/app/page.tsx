@@ -69,7 +69,8 @@ export default function Home() {
       if (isIntervalRunning) {
         setTime(totalTime);
       } else {
-        setIsRunning(false);
+        // setIsRunning(false);
+        resetTimer();
       }
 
       // 알림음 재생
@@ -77,20 +78,20 @@ export default function Home() {
       // 흔들림 효과 시작
       triggerShake();
 
-      if (Notification.permission === "granted") {
-        new Notification("⏰ 타이머 완료!", {
-          body: "설정한 시간이 끝났어요.",
-        });
-      } else if (Notification.permission !== "denied") {
-        // 웹사이트 알림 권한 요청
-        Notification.requestPermission().then((permission) => {
-          if (permission === "granted") {
-            new Notification("⏰ 타이머 완료!", {
-              body: "설정한 시간이 끝났어요.",
-            });
-          }
-        });
-      }
+      // if (Notification.permission === "granted") {
+      //   new Notification("⏰ 타이머 완료!", {
+      //     body: "설정한 시간이 끝났어요.",
+      //   });
+      // } else if (Notification.permission !== "denied") {
+      //   // 웹사이트 알림 권한 요청
+      //   Notification.requestPermission().then((permission) => {
+      //     if (permission === "granted") {
+      //       new Notification("⏰ 타이머 완료!", {
+      //         body: "설정한 시간이 끝났어요.",
+      //       });
+      //     }
+      //   });
+      // }
     }
     return () => {
       if (interval) clearInterval(interval);
